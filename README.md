@@ -28,7 +28,7 @@ This project provides a complete workflow for:
 - **Quality Assessment**: Standardized Mean Difference (SMD), balance metrics
 - **Interactive Selection**: User-guided method selection with performance comparison
 
-### 📈 Visualization & Analysis
+###  Visualization & Analysis
 - **Propensity Score Distributions**: Before/after matching comparisons
 - **Disease Trajectory Analysis**: Age onset, duration, recovery patterns
 - **Quality Dashboards**: Comprehensive matching assessment
@@ -206,7 +206,7 @@ preferences = {
 }
 ```
 
-## 📚 Documentation
+## Documentation
 
 - **Methodology**: See `summary_BED_ukbiobank_19092025.md` for complete methodology
 - **Field Descriptions**: Use `web_field_lookup.py` for UK Biobank field details
@@ -260,11 +260,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Stuart (2010)**: Matching methods framework
 - **Research Team**: Methodology development and validation
 
-##  Contact
-
-For questions about methodology or implementation:
-- Open an issue on GitHub
-- Email: [your-email@institution.edu]
 
 ## 🔗 References
 
