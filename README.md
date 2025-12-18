@@ -3,18 +3,25 @@
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A comprehensive pipeline for analyzing Binge Eating Disorder (BED) data from UK Biobank with advanced control matching and neuroimaging data preparation.
+A comprehensive pipeline for analyzing Binge Eating Disorder (BED) data from UK Biobank, featuring advanced control matching, neuroimaging processing, and structure-function coupling analysis.
 
 ## Overview
 
 This project provides a complete workflow for:
+
+### Phenotype Data Processing
 - Processing UK Biobank eating disorder data with diffusion MRI filtering
-- Implementing sophisticated control matching algorithms
+- Implementing control matching algorithms (5 methods)
 - Applying evidence-based exclusion criteria for substance use and psychiatric comorbidities
-- Generating comprehensive visualizations and quality assessments
 - Creating publication-ready matched case-control datasets
 
-##  Key Features
+### Neuroimaging Analysis
+- Quality control for structural connectivity (SC) and functional connectivity (FC) data
+- Computing FC correlation matrices from parcellated fMRI time series
+- Computing SC-FC coupling at whole-brain, network, and regional scales
+- Support for Glasser (360 cortical) + Melbourne (54 subcortical) parcellation (414 total)
+
+## Key Features
 
 ### Data Processing
 - **Automated dMRI filtering**: Selects participants with available diffusion MRI data
@@ -28,7 +35,14 @@ This project provides a complete workflow for:
 - **Quality Assessment**: Standardized Mean Difference (SMD), balance metrics
 - **Interactive Selection**: User-guided method selection with performance comparison
 
-###  Visualization & Analysis
+### Neuroimaging Processing
+- **Quality Control**: Comprehensive validation of SC matrices and FC time series
+- **FC Matrix Computation**: Pearson correlation with optional Fisher z-transformation
+- **SC-FC Coupling**: Spearman correlation at whole-brain, network, and parcel levels
+- **Network Analysis**: Support for Cole-Anticevic 12-network partition
+- **Open Science**: All scripts use command-line arguments with `--help` documentation
+
+### Visualization & Analysis
 - **Propensity Score Distributions**: Before/after matching comparisons
 - **Disease Trajectory Analysis**: Age onset, duration, recovery patterns
 - **Quality Dashboards**: Comprehensive matching assessment
@@ -67,12 +81,92 @@ python3 web_field_lookup.py 29000
 ```
 ukb-bed-analysis/
 ├── data_org_BED_refactored.py              # Main data processing pipeline
-├── interactive_control_matching.py   # Interactive matching system
-├── control_selection_pattern_matching.py    # Advanced exclusion criteria
+├── interactive_control_matching.py         # Interactive matching system
+├── control_selection_pattern_matching.py   # Advanced exclusion criteria
 ├── web_field_lookup.py                     # UK Biobank field descriptions
-├── matching_visualization_dashboard.py      # Visualization system
+├── matching_visualization_dashboard.py     # Visualization system
 ├── summary_BED_ukbiobank_19092025.md       # Methodology documentation
+│
+├── # === Neuroimaging Processing Scripts ===
+├── 01_quality_control.py                   # QC for SC matrices and FC time series
+├── 02_compute_fc_matrices.py               # Compute FC correlation matrices
+├── 03_compute_sc_fc_coupling.py            # Compute SC-FC coupling metrics
+│
 └── README.md                               # This file
+```
+
+## 🧠 Neuroimaging Processing Pipeline
+
+### Overview
+
+The neuroimaging scripts provide a complete pipeline for computing structure-function coupling from preprocessed diffusion MRI and resting-state fMRI data.
+
+### 1. Quality Control (`01_quality_control.py`)
+
+Performs comprehensive QC on connectivity data:
+
+```bash
+python 01_quality_control.py \
+    --participants participants.txt \
+    --sc-dir data/sc_matrices \
+    --fc-dir data/fc_timeseries \
+    --output-dir reports/qc \
+    --n-parcels 414 \
+    --verbose
+```
+
+**Key features:**
+- SC matrix validation (dimensions, symmetry, NaN/Inf checks)
+- FC time series validation (dimensions, value ranges)
+- Generates detailed QC reports and pass/fail lists
+
+### 2. Compute FC Matrices (`02_compute_fc_matrices.py`)
+
+Computes functional connectivity matrices from parcellated time series:
+
+```bash
+python 02_compute_fc_matrices.py \
+    --participants participants_qc_passed.txt \
+    --input-dir data/fc_timeseries \
+    --output-dir data/fc_matrices \
+    --fisher-z \
+    --verbose
+```
+
+**Key features:**
+- Pearson correlation between all parcel pairs
+- Optional Fisher z-transformation
+- Handles zero-variance parcels
+
+### 3. Compute SC-FC Coupling (`03_compute_sc_fc_coupling.py`)
+
+Computes structure-function coupling at multiple scales:
+
+```bash
+python 03_compute_sc_fc_coupling.py \
+    --participants participants_qc_passed.txt \
+    --sc-dir data/sc_matrices \
+    --fc-dir data/fc_matrices \
+    --atlas atlas/combined_414_labels.csv \
+    --output-dir data/coupling_metrics \
+    --compute-regional \
+    --verbose
+```
+
+**Key features:**
+- Whole-brain SC-FC coupling (Spearman correlation)
+- Network-level coupling (within and between networks)
+- Regional (parcel-level) coupling
+- Supports custom atlas with network assignments
+
+### Command-Line Help
+
+All scripts support `--help` for detailed usage:
+
+```bash
+python 01_quality_control.py --help
+python 02_compute_fc_matrices.py --help
+python 03_compute_sc_fc_coupling.py --help
 ```
 
 ## Methodology
